@@ -111,7 +111,7 @@ KillerDom Go:    RE2 DFA → O(n) guaranteed, no exceptions
 
 ## 🚀 Quick Start
 
-### PHP (Standalone / WordPress / Laravel)
+### PHP (Standalone) Best suited for static sites, simple APIs and microservices where legitimate traffic is predictable. Not recommended for WordPress, Laravel or any CMS with a backend UI.
 
 ```php
 use VGT\Security\Core\VgtKillerDomEngine;
