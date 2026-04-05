@@ -218,12 +218,32 @@ if let Some(threat) = ENGINE.scan_header(user_agent) {
 
 **Dependencies (`Cargo.toml`):**
 ```toml
+[package]
+name = "vgt-killerdom"
+version = "1.0.0"
+edition = "2021"
+authors = ["VisionGaia Technology"]
+description = "VGT KillerDom - Apex Threat Annihilation Engine (DFA RegexSet Core)"
+repository = "https://github.com/visiongaiatechnology/killerdom"
+license = "AGPL-3.0"
+
 [dependencies]
-once_cell = "1"
-regex = "1"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-thiserror = "1"
+# RE2-kompatible DFA Engine. Garantiert O(n) Ausführungszeit. Keinerlei Backtracking.
+regex = "1.10"
+# Lazy Initialization für Zero-Overhead nach dem Bootvorgang.
+once_cell = "1.19"
+# High-Performance JSON Traversal.
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+# Eliminierung von panics durch striktes Error Handling.
+thiserror = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort" # Reduziert Binary-Größe und Overhead. Panics sind Systemfehler.
+strip = true
 ```
 
 **Requirements:** Rust 1.75+ · `#![forbid(unsafe_code)]`
