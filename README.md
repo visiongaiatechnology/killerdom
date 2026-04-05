@@ -5,7 +5,8 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)](#)
 [![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?style=for-the-badge&logo=php)](#)
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go)](#)
-[![Engine](https://img.shields.io/badge/Engine-PCRE2_JIT_%2B_RE2_DFA-red?style=for-the-badge)](#)
+[![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge&logo=rust)](#)
+[![Engine](https://img.shields.io/badge/Engine-PCRE2_JIT_%2B_RE2_DFA_%2B_RegexSet_DFA-red?style=for-the-badge)](#)
 [![Status](https://img.shields.io/badge/Status-DIAMANT_VGT_SUPREME-gold?style=for-the-badge)](#)
 [![VGT](https://img.shields.io/badge/VGT-VisionGaia_Technology-red?style=for-the-badge)](https://visiongaiatechnology.de)
 
@@ -16,7 +17,7 @@
 
 ## 🔍 What is VGT KillerDom?
 
-VGT KillerDom is a **polyglot, production-grade WAF signature library** — battle-hardened regex patterns for neutralizing the most dangerous attack vectors on the modern web, available as a **drop-in middleware** for PHP, Python (FastAPI/Starlette ASGI) and Go (net/http).
+VGT KillerDom is a **polyglot, production-grade WAF signature library** — battle-hardened regex patterns for neutralizing the most dangerous attack vectors on the modern web, available as a **drop-in middleware** for PHP, Python (FastAPI/Starlette ASGI), Go (net/http) and Rust (Tower/Axum).
 
 This is not a tutorial. This is not a toy. This is a raw research engine born in the **VGT Researchlab** — open-sourced for researchers, engineers, and anyone who wants to build something serious on top of it.
 
@@ -33,8 +34,9 @@ VGT KillerDom:
 → Full source — every pattern visible and auditable
 → ReDoS-immune via Atomic Groups + Possessive Quantifiers (PHP/Python)
 → O(n) deterministic matching via RE2 DFA (Go)
+→ Simultaneous DFA via RegexSet — all patterns in one automaton pass (Rust)
 → Three-tier threat classification (CRITICAL / SUSPICIOUS / HEADER_VIOLATION)
-→ Drop-in middleware for PHP, FastAPI, Go net/http
+→ Drop-in middleware for PHP, FastAPI, Go net/http, Rust Tower/Axum
 → Zero cloud. Zero callbacks. Zero compromise.
 ```
 
@@ -103,10 +105,13 @@ KillerDom is built from the ground up to be immune to **Regular Expression Denia
 
 **Go:** The RE2 engine used natively by Go's `regexp` package operates as a deterministic finite automaton (DFA). Backtracking is architecturally impossible — `O(n)` time guaranteed by the engine itself.
 
+**Rust:** Uses `RegexSet` from the `regex` crate — all patterns are merged into a **single simultaneous DFA**. Instead of matching each pattern sequentially, all signatures are evaluated in one pass over the input. This is the most efficient implementation of the four — `O(n)` over the input regardless of how many patterns exist, with zero backtracking by design (the `regex` crate explicitly forbids lookahead and backreferences to guarantee linear time).
+
 ```
-Standard Regex:  Worst-case O(2^n) — exploitable
-KillerDom PHP:   Atomic Groups + Possessives → O(1) per vector
-KillerDom Go:    RE2 DFA → O(n) guaranteed, no exceptions
+Standard Regex:   Worst-case O(2^n) — exploitable
+KillerDom PHP:    Atomic Groups + Possessives → O(1) per vector
+KillerDom Go:     RE2 DFA → O(n) guaranteed
+KillerDom Rust:   RegexSet simultaneous DFA → O(n), all patterns in one pass
 ```
 
 ---
@@ -119,6 +124,7 @@ KillerDom Go:    RE2 DFA → O(n) guaranteed, no exceptions
 | **PHP** | [killerdomphp.php](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdomphp.php) |
 | **Python** | [killerdompython.py](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdompython.py) |
 | **Go** | [killerdomgo.go](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdomgo.go) |
+| **Rust** | [killerdomrust.rs](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdomrust.rs) |
 
 ### PHP (Standalone)
 
@@ -194,6 +200,38 @@ func main() {
 
 ---
 
+### Rust (Tower / Axum)
+
+```rust
+use killerdom::ENGINE;
+
+// Scan a request body (as JSON Value)
+if let Ok(Some(threat)) = ENGINE.scan_payload(&json_value, 0) {
+    return StatusCode::FORBIDDEN;
+}
+
+// Scan a header value
+if let Some(threat) = ENGINE.scan_header(user_agent) {
+    return StatusCode::FORBIDDEN;
+}
+```
+
+**Dependencies (`Cargo.toml`):**
+```toml
+[dependencies]
+once_cell = "1"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+```
+
+**Requirements:** Rust 1.75+ · `#![forbid(unsafe_code)]`
+
+> **Why `RegexSet`?** Instead of iterating patterns sequentially, Rust's `RegexSet` compiles all signatures into a **single simultaneous DFA**. The engine scans the input exactly once regardless of how many patterns are active. This is the highest-throughput implementation in the KillerDom suite.
+
+---
+
 ## 📊 Three-Tier Response Matrix
 
 | Tier | Severity | Trigger | HTTP Response |
@@ -211,7 +249,7 @@ KillerDom is intentionally **fully transparent**. Every signature is readable, a
 
 **What you can do with this:**
 - Fork and extend the signature catalog for your own WAF
-- Port to other languages (Rust, Java, C#, Ruby — PRs welcome)
+- Port to other languages (Java, C#, Ruby — PRs welcome)
 - Use as a benchmark baseline for WAF evasion research
 - Integrate into SIEM pipelines for threat classification
 - Build your own middleware stack on top of the engine
@@ -231,6 +269,7 @@ KillerDom is intentionally **fully transparent**. Every signature is readable, a
 | **PHP** | PCRE2 JIT + Atomic Groups | O(1) per vector |
 | **Python** | CPython re + Atomic Groups (3.11+) | O(1) per vector |
 | **Go** | RE2 DFA (native) | O(n) guaranteed |
+| **Rust** | `RegexSet` simultaneous DFA (`once_cell` static) | O(n), all patterns — one pass |
 
 All implementations pre-compile patterns at initialization. Runtime cost is pure matching — zero recompilation per request.
 
@@ -286,4 +325,4 @@ VisionGaia Technology builds enterprise-grade security infrastructure — engine
 
 ---
 
-*Version 1.0.0 — VGT KillerDom // Apex Threat Annihilation Engine // PHP + Python + Go // AGPLv3*
+*Version 1.0.0 — VGT KillerDom // Apex Threat Annihilation Engine // PHP + Python + Go + Rust // AGPLv3*
