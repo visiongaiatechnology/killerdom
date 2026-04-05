@@ -18,7 +18,9 @@
 
 VGT KillerDom is a **polyglot, production-grade WAF signature library** — battle-hardened regex patterns for neutralizing the most dangerous attack vectors on the modern web, available as a **drop-in middleware** for PHP, Python (FastAPI/Starlette ASGI) and Go (net/http).
 
-This is not a tutorial. This is not a toy. This is the raw signature core extracted from the VGT Researchlab, open-sourced for researchers, engineers, and anyone who wants to build something serious.
+This is not a tutorial. This is not a toy. This is a raw research engine born in the **VGT Researchlab** — open-sourced for researchers, engineers, and anyone who wants to build something serious on top of it.
+
+> **⚠️ Important:** KillerDom operates with maximum aggression and zero context-awareness. It is **not suitable for CMS platforms, page builders, or any system that generates complex backend traffic** (WordPress, Laravel, Drupal etc.) — it will break them. KillerDom is designed for **static sites, simple APIs and microservices** where legitimate traffic is fully predictable.
 
 ```
 Traditional WAF Rules:
@@ -111,7 +113,14 @@ KillerDom Go:    RE2 DFA → O(n) guaranteed, no exceptions
 
 ## 🚀 Quick Start
 
-### PHP (Standalone) Best suited for static sites, simple APIs and microservices where legitimate traffic is predictable. Not recommended for WordPress, Laravel or any CMS with a backend UI.
+**Source Files:**
+| Language | File |
+|---|---|
+| **PHP** | [killerdomphp.php](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdomphp.php) |
+| **Python** | [killerdompython.py](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdompython.py) |
+| **Go** | [killerdomgo.go](https://github.com/visiongaiatechnology/killerdom/blob/main/killerdomgo.go) |
+
+### PHP (Standalone)
 
 ```php
 use VGT\Security\Core\VgtKillerDomEngine;
@@ -166,7 +175,7 @@ package main
 
 import (
     "net/http"
-    vgtsecurity "github.com/visiongaiatechnology/vgt-killerdom/go"
+    vgtsecurity "github.com/visiongaiatechnology/killerdom"
 )
 
 func main() {
@@ -211,7 +220,7 @@ KillerDom is intentionally **fully transparent**. Every signature is readable, a
 - OWASP Core Rule Set (CRS) evasion techniques
 - PayloadsAllTheThings catalog
 - HackTricks bypass techniques
-- Real-world attack logs from VGT Sentinel deployments
+- Real-world attack log analysis
 
 ---
 
@@ -231,8 +240,8 @@ All implementations pre-compile patterns at initialization. Runtime cost is pure
 
 | Tool | Type | Purpose |
 |---|---|---|
-| ☠️ **VGT KillerDom** | **WAF Engine** | Polyglot regex annihilation core — you are here |
-| ⚔️ **[VGT Sentinel](https://github.com/visiongaiatechnology/vgt-sentinel)** | **WAF / IDS Framework** | Zero-Trust WordPress security suite — KillerDom lives inside AEGIS |
+| ☠️ **VGT KillerDom** | **WAF Research Engine** | Polyglot regex annihilation core — you are here |
+| ⚔️ **[VGT Sentinel](https://github.com/visiongaiatechnology/vgt-sentinel)** | **WAF / IDS Framework** | Zero-Trust WordPress security suite |
 | 🛡️ **[VGT Myrmidon](https://github.com/visiongaiatechnology/vgtmyrmidon)** | **ZTNA** | Zero Trust device registry and cryptographic integrity verification |
 | ⚡ **[VGT Auto-Punisher](https://github.com/visiongaiatechnology/vgt-auto-punisher)** | **IDS** | L4+L7 Hybrid IDS — attackers terminated before they even knock |
 | 🌐 **[VGT Global Threat Sync](https://github.com/visiongaiatechnology/vgt-global-threat-sync)** | **Preventive** | Daily threat feed — block known attackers before they arrive |
@@ -273,7 +282,7 @@ Licensed under **AGPLv3** — *"For Researchers. For Builders. For the Ruthless.
 
 VisionGaia Technology builds enterprise-grade security infrastructure — engineered to the DIAMANT VGT SUPREME standard.
 
-> *"KillerDom started as the regex core of VGT Sentinel AEGIS. Today it's standalone — because the patterns that protect our systems should be auditable by anyone serious enough to read them."*
+> *"KillerDom was born in the VGT Researchlab as a pure experiment — how aggressive can a WAF signature set get before it becomes unusable? The answer is: very. Use it as a foundation, not as a drop-in."*
 
 ---
 
