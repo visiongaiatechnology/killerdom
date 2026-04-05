@@ -18,7 +18,7 @@
 
 VGT KillerDom is a **polyglot, production-grade WAF signature library** — battle-hardened regex patterns for neutralizing the most dangerous attack vectors on the modern web, available as a **drop-in middleware** for PHP, Python (FastAPI/Starlette ASGI) and Go (net/http).
 
-This is not a tutorial. This is not a toy. This is the raw signature core extracted from the VGT Sentinel security suite, open-sourced for researchers, engineers, and anyone who wants to build something serious.
+This is not a tutorial. This is not a toy. This is the raw signature core extracted from the VGT Researchlab, open-sourced for researchers, engineers, and anyone who wants to build something serious.
 
 ```
 Traditional WAF Rules:
